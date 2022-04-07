@@ -2,6 +2,7 @@ package keep
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -24,6 +25,11 @@ func Show(w http.ResponseWriter, r *http.Request) {
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var note Note
+	json.Unmarshal(reqBody, &note)
+	note = CreateNoteService(note)
+	json.NewEncoder(w).Encode(note)
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
