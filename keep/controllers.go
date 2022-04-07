@@ -11,17 +11,15 @@ import (
 var Notes []Note
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(Notes)
+	notes := IndexNoteService()
+	json.NewEncoder(w).Encode(notes)
 }
 
 func Show(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	key := vars["uuid"]
-	for _, note := range Notes {
-		if note.UUID == key {
-			json.NewEncoder(w).Encode(note)
-		}
-	}
+	uuid := vars["uuid"]
+	note := ShowNoteService(uuid)
+	json.NewEncoder(w).Encode(note)
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
@@ -33,6 +31,9 @@ func Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuid := vars["uuid"]
+	DeleteNoteService(uuid)
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
