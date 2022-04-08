@@ -2,14 +2,25 @@ version: '3'
 
 services:
   app:
+    container_name: 'api'
     build: .
     ports:
       - "8000:8000"
     restart: unless-stopped
     volumes:
       - .:/usr/src/app/
+    depends_on:
+      - 'mongo'
     networks: 
       - backend
+
+  mongo:
+      image: 'mongo:latest'
+      container_name: 'mongodb'
+      ports:
+        - '27100:27017'
+      networks: 
+        - backend
 
 networks:
   backend: 
