@@ -1,28 +1,45 @@
 version: '3'
 
 services:
-  web:
-    container_name: 'api'
-    build: .
-    ports:
-      - "8000:8000"
-    environment:
-      MONGODB_URI: "mongodb://localhost:27017"
-    restart: unless-stopped
+  api:
+    container_name: keepsafe_api
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
-      - .:/usr/src/app/
+      - .:/app/
+    ports:
+      - "${API_PORT:-8080}:8080"
+    env_file:
+      - ./.env
+    networks:
+      - local_network
     depends_on:
-      - 'mongo'
-    networks: 
-      - backend
+      mongo:
+        condition: service_healthy
 
   mongo:
       image: 'mongo:latest'
-      container_name: 'mongodb'
+      container_name: 'keepsafe_mongodb'
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-root}
+        MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-root}
       ports:
         - '27017:27017'
-      networks: 
-        - backend
+      volumes:
+        - mongo:/data/db
+      healthcheck:
+        test: echo 'db.runCommand("ping").ok'
+        interval: 10s
+        timeout: 10s
+        retries: 5
+        start_period: 40s
+      networks:
+        - local_network
 
 networks:
-  backend: 
+  local_network:
+    driver: bridge
+
+volumes:
+    mongo:
