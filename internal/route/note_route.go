@@ -14,4 +14,5 @@ func NoteRoute(mux *http.ServeMux, client *mongo.Client) {
 	noteService := service.NewNoteService(noteRepository)
 	noteHandler := handler.NewNoteHandler(noteService)
 	mux.HandleFunc("POST /", noteHandler.Create)
+	mux.HandleFunc("GET /", noteHandler.List)
 }
