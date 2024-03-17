@@ -1,0 +1,14 @@
+POST http://localhost:8080 HTTP/1.1
+content-type: application/json
+
+{
+    "text": "valid_text"
+}
+
+###
+
+GET http://localhost:8080 HTTP/1.1
+content-type: application/json
+
+{
+}
