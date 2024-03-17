@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"os"
 
@@ -37,6 +38,21 @@ func encrypt(plaintext []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
+func decrypt(ciphertext []byte) ([]byte, error) {
+	block, err := aes.NewCipher([]byte(os.Getenv("SECRET_KEY_32_BYTES")))
+	if err != nil {
+		return nil, err
+	}
+	if len(ciphertext) < aes.BlockSize {
+		return nil, fmt.Errorf("ciphertext too short")
+	}
+	iv := ciphertext[:aes.BlockSize]
+	ciphertext = ciphertext[aes.BlockSize:]
+	stream := cipher.NewCFBDecrypter(block, iv)
+	stream.XORKeyStream(ciphertext, ciphertext)
+	return ciphertext, nil
+}
+
 func (ns *NoteService) CreateNote(note *entity.NoteEntity) (*entity.NoteEntity, *exception.Exception) {
 	errorsCauses := []exception.Causes{}
 	if note.Text == "" {
@@ -58,4 +74,29 @@ func (ns *NoteService) CreateNote(note *entity.NoteEntity) (*entity.NoteEntity, 
 		return nil, exception.NewInternalServerError(err.Error())
 	}
 	return note, nil
+}
+
+func (ns *NoteService) GetNotes() ([]*entity.NoteEntity, *exception.Exception) {
+	results, err := ns.nr.GetNotes()
+	if err != nil {
+		return nil, exception.NewInternalServerError(err.Error())
+	}
+	var notes []*entity.NoteEntity
+	for _, r := range results {
+		decoded, errDecode := base64.StdEncoding.DecodeString(r.Text)
+		if errDecode != nil {
+			return nil, exception.NewInternalServerError(errDecode.Error())
+		}
+		decrypted, errDecrypt := decrypt(decoded)
+		if errDecrypt != nil {
+			return nil, exception.NewInternalServerError(errDecrypt.Error())
+		}
+		notes = append(notes, &entity.NoteEntity{
+			ID:        r.ID,
+			Text:      string(decrypted),
+			CreatedAt: r.CreatedAt,
+			UpdatedAt: r.UpdatedAt,
+		})
+	}
+	return notes, nil
 }
