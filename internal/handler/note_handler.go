@@ -33,8 +33,28 @@ func (nh *NoteHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := json.NewEncoder(w).Encode(payload.NewNoteResponde(
-		note.ID.Hex(), note.CreatedAt,
-		note.UpdatedAt, note.Text)); err != nil {
+		note.ID.Hex(),
+		note.CreatedAt,
+		note.UpdatedAt,
+		note.Text)); err != nil {
+		err := exception.NewInternalServerError(err.Error())
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+	}
+}
+
+func (nh *NoteHandler) List(w http.ResponseWriter, r *http.Request) {
+	notes, err := nh.ns.GetNotes()
+	if err != nil {
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+	res := []*payload.NoteResponse{}
+	for _, n := range notes {
+		res = append(res, payload.NewNoteResponde(n.ID.Hex(), n.CreatedAt, n.UpdatedAt, n.Text))
+	}
+	if err := json.NewEncoder(w).Encode(res); err != nil {
 		err := exception.NewInternalServerError(err.Error())
 		w.WriteHeader(err.Code)
 		json.NewEncoder(w).Encode(err)
