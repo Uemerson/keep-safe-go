@@ -57,7 +57,7 @@ func (ns *NoteService) CreateNote(note *entity.NoteEntity) (*entity.NoteEntity, 
 	errorsCauses := []exception.Causes{}
 	if note.Text == "" {
 		cause := exception.Causes{
-			Message: "missing param text",
+			Message: "Missing param: text",
 			Field:   "text",
 		}
 		errorsCauses = append(errorsCauses, cause)
@@ -99,4 +99,18 @@ func (ns *NoteService) GetNotes() ([]*entity.NoteEntity, *exception.Exception) {
 		})
 	}
 	return notes, nil
+}
+
+func (ns *NoteService) DeleteNoteById(id string) *exception.Exception {
+	note, err := ns.nr.GetNoteById(id)
+	if err != nil {
+		return exception.NewInternalServerError(err.Error())
+	}
+	if note == nil {
+		return exception.NewNotFoundError(fmt.Sprintf("Note not found with this ID: %s", id))
+	}
+	if err := ns.nr.DeleteNoteById(id); err != nil {
+		return exception.NewInternalServerError(err.Error())
+	}
+	return nil
 }
