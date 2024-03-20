@@ -60,3 +60,13 @@ func (nh *NoteHandler) List(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 	}
 }
+
+func (nh *NoteHandler) DeleteNoteById(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if err := nh.ns.DeleteNoteById(id); err != nil {
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
