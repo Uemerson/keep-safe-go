@@ -12,3 +12,11 @@ content-type: application/json
 
 {
 }
+
+###
+
+DELETE http://localhost:8080/65fa3a2da802849f135a6d0d/ HTTP/1.1
+content-type: application/json
+
+{
+}
