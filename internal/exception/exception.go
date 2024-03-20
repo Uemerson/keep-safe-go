@@ -42,3 +42,11 @@ func NewBadRequestValidationError(message string, causes []Causes) *Exception {
 		Causes:  causes,
 	}
 }
+
+func NewNotFoundError(message string) *Exception {
+	return &Exception{
+		Message: message,
+		Err:     "not_found",
+		Code:    http.StatusNotFound,
+	}
+}
