@@ -2,10 +2,11 @@ package repository
 
 import (
 	"context"
-	"time"
+	"errors"
 
 	"github.com/Uemerson/keep-safe-go/internal/entity"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -25,13 +26,11 @@ func (nr *NoteRepository) SaveNote(note *entity.NoteEntity) (*mongo.InsertOneRes
 
 func (nr *NoteRepository) GetNotes() ([]*entity.NoteEntity, error) {
 	notesCollection := nr.db.Database("keepsafe").Collection("notes")
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
+	ctx := context.TODO()
 	cur, err := notesCollection.Find(ctx, bson.D{})
 	if err != nil {
 		return nil, err
 	}
-	defer cur.Close(ctx)
 	var results []*entity.NoteEntity
 	for cur.Next(ctx) {
 		var result *entity.NoteEntity
@@ -45,4 +44,36 @@ func (nr *NoteRepository) GetNotes() ([]*entity.NoteEntity, error) {
 		return nil, err
 	}
 	return results, nil
+}
+
+func (nr *NoteRepository) DeleteNoteById(id string) error {
+	notesCollection := nr.db.Database("keepsafe").Collection("notes")
+	idPrimitive, errPrimitive := primitive.ObjectIDFromHex(id)
+	if errPrimitive != nil {
+		return errPrimitive
+	}
+	_, err := notesCollection.DeleteOne(context.TODO(), bson.M{"_id": idPrimitive})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (nr *NoteRepository) GetNoteById(id string) (*entity.NoteEntity, error) {
+	notesCollection := nr.db.Database("keepsafe").Collection("notes")
+	idPrimitive, errPrimitive := primitive.ObjectIDFromHex(id)
+	if errPrimitive != nil {
+		return nil, errPrimitive
+	}
+	var res entity.NoteEntity
+	err := notesCollection.FindOne(context.TODO(), bson.M{"_id": idPrimitive}).Decode(&res)
+	if err != nil {
+		switch {
+		case errors.Is(err, mongo.ErrNoDocuments):
+			return nil, nil
+		default:
+			return nil, err
+		}
+	}
+	return &res, nil
 }
