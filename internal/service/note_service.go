@@ -101,7 +101,7 @@ func (ns *NoteService) GetNotes() ([]*entity.NoteEntity, *exception.Exception) {
 	return notes, nil
 }
 
-func (ns *NoteService) DeleteNoteById(id string) *exception.Exception {
+func (ns *NoteService) DeleteNote(id string) *exception.Exception {
 	note, err := ns.nr.GetNoteById(id)
 	if err != nil {
 		return exception.NewInternalServerError(err.Error())
@@ -109,7 +109,7 @@ func (ns *NoteService) DeleteNoteById(id string) *exception.Exception {
 	if note == nil {
 		return exception.NewNotFoundError(fmt.Sprintf("Note not found with this ID: %s", id))
 	}
-	if err := ns.nr.DeleteNoteById(id); err != nil {
+	if err := ns.nr.DeleteNote(id); err != nil {
 		return exception.NewInternalServerError(err.Error())
 	}
 	return nil

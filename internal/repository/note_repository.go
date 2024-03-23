@@ -46,7 +46,7 @@ func (nr *NoteRepository) GetNotes() ([]*entity.NoteEntity, error) {
 	return results, nil
 }
 
-func (nr *NoteRepository) DeleteNoteById(id string) error {
+func (nr *NoteRepository) DeleteNote(id string) error {
 	notesCollection := nr.db.Database("keepsafe").Collection("notes")
 	idPrimitive, errPrimitive := primitive.ObjectIDFromHex(id)
 	if errPrimitive != nil {
