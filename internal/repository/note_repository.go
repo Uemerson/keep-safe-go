@@ -24,7 +24,7 @@ func (nr *NoteRepository) SaveNote(note *entity.NoteEntity) (*mongo.InsertOneRes
 	return result, err
 }
 
-func (nr *NoteRepository) GetNotes() ([]*entity.NoteEntity, error) {
+func (nr *NoteRepository) LoadNotes() ([]*entity.NoteEntity, error) {
 	notesCollection := nr.db.Database("keepsafe").Collection("notes")
 	ctx := context.TODO()
 	cur, err := notesCollection.Find(ctx, bson.D{})
@@ -59,7 +59,7 @@ func (nr *NoteRepository) DeleteNote(id string) error {
 	return nil
 }
 
-func (nr *NoteRepository) GetNoteById(id string) (*entity.NoteEntity, error) {
+func (nr *NoteRepository) LoadNoteById(id string) (*entity.NoteEntity, error) {
 	notesCollection := nr.db.Database("keepsafe").Collection("notes")
 	idPrimitive, errPrimitive := primitive.ObjectIDFromHex(id)
 	if errPrimitive != nil {

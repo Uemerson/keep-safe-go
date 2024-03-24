@@ -76,8 +76,8 @@ func (ns *NoteService) AddNote(note *entity.NoteEntity) (*entity.NoteEntity, *ex
 	return note, nil
 }
 
-func (ns *NoteService) GetNotes() ([]*entity.NoteEntity, *exception.Exception) {
-	results, err := ns.nr.GetNotes()
+func (ns *NoteService) LoadNotes() ([]*entity.NoteEntity, *exception.Exception) {
+	results, err := ns.nr.LoadNotes()
 	if err != nil {
 		return nil, exception.NewInternalServerError(err.Error())
 	}
@@ -102,7 +102,7 @@ func (ns *NoteService) GetNotes() ([]*entity.NoteEntity, *exception.Exception) {
 }
 
 func (ns *NoteService) DeleteNote(id string) *exception.Exception {
-	note, err := ns.nr.GetNoteById(id)
+	note, err := ns.nr.LoadNoteById(id)
 	if err != nil {
 		return exception.NewInternalServerError(err.Error())
 	}

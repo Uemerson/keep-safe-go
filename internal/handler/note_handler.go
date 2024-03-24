@@ -43,8 +43,8 @@ func (nh *NoteHandler) AddNote(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (nh *NoteHandler) List(w http.ResponseWriter, r *http.Request) {
-	notes, err := nh.ns.GetNotes()
+func (nh *NoteHandler) LoadNotes(w http.ResponseWriter, r *http.Request) {
+	notes, err := nh.ns.LoadNotes()
 	if err != nil {
 		w.WriteHeader(err.Code)
 		json.NewEncoder(w).Encode(err)
