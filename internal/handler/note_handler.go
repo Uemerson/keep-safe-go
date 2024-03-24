@@ -70,3 +70,19 @@ func (nh *NoteHandler) DeleteNote(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (nh *NoteHandler) LoadNoteById(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	note, err := nh.ns.LoadNoteById(id)
+	if err != nil {
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+	res := payload.NewNoteResponde(note.ID.Hex(), note.CreatedAt, note.UpdatedAt, note.Text)
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		err := exception.NewInternalServerError(err.Error())
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+	}
+}
