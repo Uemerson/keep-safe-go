@@ -8,9 +8,9 @@ import (
 
 type NoteEntity struct {
 	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	Text      string             `bson:"text,omitempty"`
-	CreatedAt time.Time          `bson:"created_at,omitempty"`
-	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
+	Text      string             `json:"text" bson:"text,omitempty"`
+	CreatedAt time.Time          `json:"created_at" bson:"created_at,omitempty"`
+	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at,omitempty"`
 }
 
 func NewNoteEntity(text string) *NoteEntity {

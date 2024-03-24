@@ -70,7 +70,7 @@ func (ns *NoteService) AddNote(note *entity.NoteEntity) (*entity.NoteEntity, *ex
 		return nil, exception.NewInternalServerError(errEncrypt.Error())
 	}
 	note.Text = base64.StdEncoding.EncodeToString(encrypted)
-	if _, err := ns.nr.SaveNote(note); err != nil {
+	if _, err := ns.nr.AddNote(note); err != nil {
 		return nil, exception.NewInternalServerError(err.Error())
 	}
 	return note, nil

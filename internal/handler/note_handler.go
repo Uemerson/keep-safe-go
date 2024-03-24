@@ -6,7 +6,6 @@ import (
 
 	"github.com/Uemerson/keep-safe-go/internal/entity"
 	"github.com/Uemerson/keep-safe-go/internal/exception"
-	"github.com/Uemerson/keep-safe-go/internal/payload"
 	"github.com/Uemerson/keep-safe-go/internal/service"
 )
 
@@ -19,7 +18,7 @@ func NewNoteHandler(ns *service.NoteService) *NoteHandler {
 }
 
 func (nh *NoteHandler) AddNote(w http.ResponseWriter, r *http.Request) {
-	var noteRequest payload.NoteRequest
+	var noteRequest entity.NoteEntity
 	if err := json.NewDecoder(r.Body).Decode(&noteRequest); err != nil {
 		err := exception.NewInternalServerError(err.Error())
 		w.WriteHeader(err.Code)
@@ -32,11 +31,7 @@ func (nh *NoteHandler) AddNote(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	if err := json.NewEncoder(w).Encode(payload.NewNoteResponde(
-		note.ID.Hex(),
-		note.CreatedAt,
-		note.UpdatedAt,
-		note.Text)); err != nil {
+	if err := json.NewEncoder(w).Encode(note); err != nil {
 		err := exception.NewInternalServerError(err.Error())
 		w.WriteHeader(err.Code)
 		json.NewEncoder(w).Encode(err)
@@ -50,11 +45,7 @@ func (nh *NoteHandler) LoadNotes(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	res := []*payload.NoteResponse{}
-	for _, n := range notes {
-		res = append(res, payload.NewNoteResponde(n.ID.Hex(), n.CreatedAt, n.UpdatedAt, n.Text))
-	}
-	if err := json.NewEncoder(w).Encode(res); err != nil {
+	if err := json.NewEncoder(w).Encode(notes); err != nil {
 		err := exception.NewInternalServerError(err.Error())
 		w.WriteHeader(err.Code)
 		json.NewEncoder(w).Encode(err)
@@ -79,8 +70,7 @@ func (nh *NoteHandler) LoadNoteById(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	res := payload.NewNoteResponde(note.ID.Hex(), note.CreatedAt, note.UpdatedAt, note.Text)
-	if err := json.NewEncoder(w).Encode(res); err != nil {
+	if err := json.NewEncoder(w).Encode(note); err != nil {
 		err := exception.NewInternalServerError(err.Error())
 		w.WriteHeader(err.Code)
 		json.NewEncoder(w).Encode(err)
