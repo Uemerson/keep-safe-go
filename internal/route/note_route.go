@@ -16,4 +16,5 @@ func NoteRoute(mux *http.ServeMux, client *mongo.Client) {
 	mux.HandleFunc("POST /", noteHandler.AddNote)
 	mux.HandleFunc("GET /", noteHandler.LoadNotes)
 	mux.HandleFunc("DELETE /{id}/", noteHandler.DeleteNote)
+	mux.HandleFunc("GET /{id}/", noteHandler.LoadNoteById)
 }
