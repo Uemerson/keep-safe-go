@@ -114,3 +114,23 @@ func (ns *NoteService) DeleteNote(id string) *exception.Exception {
 	}
 	return nil
 }
+
+func (ns *NoteService) LoadNoteById(id string) (*entity.NoteEntity, *exception.Exception) {
+	note, err := ns.nr.LoadNoteById(id)
+	if err != nil {
+		return nil, exception.NewInternalServerError(err.Error())
+	}
+	if note == nil {
+		return nil, exception.NewNotFoundError(fmt.Sprintf("Note not found with this ID: %s", id))
+	}
+	decoded, errDecode := base64.StdEncoding.DecodeString(note.Text)
+	if errDecode != nil {
+		return nil, exception.NewInternalServerError(errDecode.Error())
+	}
+	decrypted, errDecrypt := decrypt(decoded)
+	if errDecrypt != nil {
+		return nil, exception.NewInternalServerError(errDecrypt.Error())
+	}
+	note.Text = string(decrypted)
+	return note, nil
+}
