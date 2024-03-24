@@ -18,7 +18,7 @@ func NewNoteHandler(ns *service.NoteService) *NoteHandler {
 	return &NoteHandler{ns: ns}
 }
 
-func (nh *NoteHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (nh *NoteHandler) AddNote(w http.ResponseWriter, r *http.Request) {
 	var noteRequest payload.NoteRequest
 	if err := json.NewDecoder(r.Body).Decode(&noteRequest); err != nil {
 		err := exception.NewInternalServerError(err.Error())
@@ -26,7 +26,7 @@ func (nh *NoteHandler) Create(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	note, err := nh.ns.CreateNote(entity.NewNoteEntity(noteRequest.Text))
+	note, err := nh.ns.AddNote(entity.NewNoteEntity(noteRequest.Text))
 	if err != nil {
 		w.WriteHeader(err.Code)
 		json.NewEncoder(w).Encode(err)

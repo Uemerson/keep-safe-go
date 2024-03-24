@@ -53,7 +53,7 @@ func decrypt(ciphertext []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func (ns *NoteService) CreateNote(note *entity.NoteEntity) (*entity.NoteEntity, *exception.Exception) {
+func (ns *NoteService) AddNote(note *entity.NoteEntity) (*entity.NoteEntity, *exception.Exception) {
 	errorsCauses := []exception.Causes{}
 	if note.Text == "" {
 		cause := exception.Causes{
