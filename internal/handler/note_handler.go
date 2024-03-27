@@ -76,3 +76,25 @@ func (nh *NoteHandler) LoadNoteById(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 	}
 }
+
+func (nh *NoteHandler) SaveNote(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	var noteRequest entity.NoteEntity
+	if err := json.NewDecoder(r.Body).Decode(&noteRequest); err != nil {
+		err := exception.NewInternalServerError(err.Error())
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+	note, err := nh.ns.SaveNote(id, &noteRequest)
+	if err != nil {
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+	if err := json.NewEncoder(w).Encode(note); err != nil {
+		err := exception.NewInternalServerError(err.Error())
+		w.WriteHeader(err.Code)
+		json.NewEncoder(w).Encode(err)
+	}
+}
