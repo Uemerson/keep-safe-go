@@ -77,3 +77,18 @@ func (nr *NoteRepository) LoadNoteById(id string) (*entity.NoteEntity, error) {
 	}
 	return &res, nil
 }
+
+func (nr *NoteRepository) SaveNote(id string, note *entity.NoteEntity) error {
+	notesCollection := nr.db.Database("keepsafe").Collection("notes")
+	idHex, errHex := primitive.ObjectIDFromHex(id)
+	if errHex != nil {
+		return errHex
+	}
+	filter := bson.D{{Key: "_id", Value: idHex}}
+	update := bson.D{{Key: "$set", Value: note}}
+	_, err := notesCollection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
+}
