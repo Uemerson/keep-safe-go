@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/Uemerson/keep-safe-go/internal/entity"
 	"github.com/Uemerson/keep-safe-go/internal/exception"
@@ -133,4 +134,35 @@ func (ns *NoteService) LoadNoteById(id string) (*entity.NoteEntity, *exception.E
 	}
 	note.Text = string(decrypted)
 	return note, nil
+}
+
+func (ns *NoteService) SaveNote(id string, note *entity.NoteEntity) (*entity.NoteEntity, *exception.Exception) {
+	n, err := ns.nr.LoadNoteById(id)
+	if err != nil {
+		return nil, exception.NewInternalServerError(err.Error())
+	}
+	if n == nil {
+		return nil, exception.NewNotFoundError(fmt.Sprintf("Note not found with this ID: %s", id))
+	}
+	errorsCauses := []exception.Causes{}
+	if note.Text == "" {
+		cause := exception.Causes{
+			Message: "Missing param: text",
+			Field:   "text",
+		}
+		errorsCauses = append(errorsCauses, cause)
+	}
+	if len(errorsCauses) > 0 {
+		return nil, exception.NewBadRequestValidationError("Some fields are invalid", errorsCauses)
+	}
+	encrypted, errEncrypt := encrypt([]byte(note.Text))
+	if errEncrypt != nil {
+		return nil, exception.NewInternalServerError(errEncrypt.Error())
+	}
+	n.UpdatedAt = time.Now()
+	n.Text = base64.StdEncoding.EncodeToString(encrypted)
+	if err := ns.nr.SaveNote(id, n); err != nil {
+		return nil, exception.NewInternalServerError(err.Error())
+	}
+	return n, nil
 }
