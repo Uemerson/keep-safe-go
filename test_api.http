@@ -15,7 +15,7 @@ content-type: application/json
 
 ###
 
-DELETE http://localhost:8080/65ff6e847cd4dd69858afca6/ HTTP/1.1
+DELETE http://localhost:8080/65ff6e867cd4dd69858afca7/ HTTP/1.1
 content-type: application/json
 
 {
@@ -24,8 +24,18 @@ content-type: application/json
 
 ###
 
-GET http://localhost:8080/65ff7430bf93655963c20878/ HTTP/1.1
+GET http://localhost:8080/65ff6e967cd4dd69858afca8/ HTTP/1.1
 content-type: application/json
 
 {
+}
+
+
+###
+
+PUT http://localhost:8080/65ff6e967cd4dd69858afca8/ HTTP/1.1
+content-type: application/json
+
+{
+    "text": "valid_text"
 }
